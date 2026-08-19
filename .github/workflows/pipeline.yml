@@ -43,3 +43,19 @@ jobs:
       - name: Build frontend
         run: npm run build
         working-directory: ./frontend
+
+  deploy:
+    needs: lint_and_test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup flyctl
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Deploy to FLy.io
+        run: flyctl deploy --remote-only
+        env:
+          FLY_API_TOKEN: ${{secrets.FLY_API_TOKEN}}
